@@ -13,7 +13,6 @@ def initialize_front_face_solved(cubix_tube):
             cubix_tube.add_piece(x, y, 2, piece)  # Add each piece to the front face
 
 def initialize_middle_layer_solved(cubix_tube):
-    # Assuming direct handling of center pieces is not required here
     configuration = [
         [StraightPiece("Blue", 2), "Blue Center", StraightPiece("Blue", 2)],
         [StraightPiece("Yellow", 2), "Center", StraightPiece("Yellow", 2)],
@@ -21,8 +20,6 @@ def initialize_middle_layer_solved(cubix_tube):
     ]
     for x, row in enumerate(configuration):
         for y, piece in enumerate(row):
-            if piece in ["Center", "Blue Center"]:  # Skipping center pieces
-                continue
             cubix_tube.add_piece(x, y, 1, piece)  # Add each piece to the middle layer
 
 
@@ -74,11 +71,6 @@ def initialize_back_face(cubix_tube):
     ]
     for x, row in enumerate(configuration):
         for y, piece in enumerate(row):
-            if piece == "Blue Center":
-                # Assuming the blue center is a special non-rotatable piece
-                # If "Blue Center" is merely a placeholder and does not require a distinct class,
-                # you may simply skip adding it, or handle it differently based on your cube's implementation
-                continue
             cubix_tube.add_piece(x, y, 0, piece)  # Add each piece to the back face
 
 class CubixTube:
@@ -231,14 +223,13 @@ class CubixTube:
     def __init__(self):
         # Initialize a 3x3x3 cube filled with None
         self.cube = [[[None for _ in range(3)] for _ in range(3)] for _ in range(3)]
-
-        # Optionally, set the central piece and blue centerpiece as non-functional
-        self.cube[1][1][1] = "Center"  # Central non-functional piece
-        # Assuming the blue centerpiece is at a specific location, e.g., front center
-        self.cube[1][1][0] = "Blue Center"  # Blue centerpiece
+        # Center pieces will be set by initialization functions
 
     def add_piece(self, x, y, z, piece):
-        if self.cube[x][y][z] is None:  # Ensure the slot is empty and valid
+        # Allow adding pieces to empty slots or replacing center pieces
+        if self.cube[x][y][z] is None or (
+            isinstance(piece, str) and piece in ["Center", "Blue Center"]
+        ):
             self.cube[x][y][z] = piece
         else:
             print("Slot already occupied or invalid:  value of slot is ", self.cube[x][y][z])
@@ -1120,23 +1111,24 @@ def test_move_inverse_pairs(cube, move_pairs):
             print(f"Test passed for {move_name}. Cube returned to its original state.")
 
 
-cubix_tube_solved = CubixTube()
-initialize_front_face_solved(cubix_tube_solved)
-initialize_middle_layer_solved(cubix_tube_solved)
-initialize_back_face_solved(cubix_tube_solved)
+if __name__ == "__main__":
+    cubix_tube_solved = CubixTube()
+    initialize_front_face_solved(cubix_tube_solved)
+    initialize_middle_layer_solved(cubix_tube_solved)
+    initialize_back_face_solved(cubix_tube_solved)
 
-cubix_tube = CubixTube()
-initialize_front_face(cubix_tube)
-initialize_middle_layer(cubix_tube)
-initialize_back_face(cubix_tube)
+    cubix_tube = CubixTube()
+    initialize_front_face(cubix_tube)
+    initialize_middle_layer(cubix_tube)
+    initialize_back_face(cubix_tube)
 
-# test_move_inverse_pairs(cubix_tube, move_pairs)
+    # test_move_inverse_pairs(cubix_tube, move_pairs)
 
-#path = a_star_search_alpha(cubix_tube, serialize_cube_state(cubix_tube_solved.cube), cubix_tube_solved)
-#path = a_star_search(cubix_tube, serialize_cube_state(cubix_tube_solved.cube), cubix_tube_solved)
-# let's try the other way:
-path = a_star_search(cubix_tube_solved, serialize_cube_state(cubix_tube.cube), cubix_tube)
-print(path)
+    #path = a_star_search_alpha(cubix_tube, serialize_cube_state(cubix_tube_solved.cube), cubix_tube_solved)
+    #path = a_star_search(cubix_tube, serialize_cube_state(cubix_tube_solved.cube), cubix_tube_solved)
+    # let's try the other way:
+    path = a_star_search(cubix_tube_solved, serialize_cube_state(cubix_tube.cube), cubix_tube)
+    print(path)
 
 
 # 1-4 up
